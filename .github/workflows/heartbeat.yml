@@ -1,0 +1,29 @@
+name: Service Heartbeat
+
+on:
+  schedule:
+    - cron: '*/13 * * * *'  # Every 13 minutes
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping service
+        run: |
+          timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+          echo "Running heartbeat at $timestamp"
+          
+          response=$(curl -s -w "\n%{http_code}" https://portfolio-bot-backend.vercel.app/api/health)
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response code: $http_code"
+          echo "Response body: $body"
+          
+          if [[ "$http_code" -ne 200 ]]; then
+            echo "Service returned non-200 response: $http_code"
+            exit 1
+          fi
+          
+          echo "Heartbeat successful"
