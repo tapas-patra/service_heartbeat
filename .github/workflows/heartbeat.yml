@@ -2,7 +2,7 @@ name: Service Heartbeat
 
 on:
   schedule:
-    - cron: '*/2 * * * *'  # Every 3 hours
+    - cron: '0 */3 * * *'  # Every 3 hours
   workflow_dispatch:
 
 jobs:
