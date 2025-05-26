@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Portfolio Bot Heartbeat</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+    #status { margin: 20px 0; padding: 15px; border-radius: 4px; background: #f5f5f5; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Heartbeat Monitor</h1>
+  <div id="status">Initializing...</div>
+  
+  <script>
+    const statusDiv = document.getElementById('status');
+    const API_URL = 'https://portfolio-bot-backend.vercel.app/api/health';
+    
+    async function pingService() {
+      try {
+        const startTime = Date.now();
+        const response = await fetch(API_URL);
+        const duration = Date.now() - startTime;
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        statusDiv.innerHTML = `
+          <div class="success">✓ Service is up and running</div>
+          <div>Response time: ${duration}ms</div>
+          <div>Last checked: ${new Date().toLocaleString()}</div>
+          <div>Supabase status: ${data.supabase}</div>
+        `;
+      } catch (error) {
+        statusDiv.innerHTML = `
+          <div class="error">✗ Error: ${error.message}</div>
+          <div>Last checked: ${new Date().toLocaleString()}</div>
+        `;
+      }
+    }
+    
+    // Ping immediately and then every 13min
+    pingService();
+    setInterval(pingService, 13 * 60 * 1000);
+  </script>
+</body>
+</html>
